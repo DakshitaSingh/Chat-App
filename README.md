@@ -7,7 +7,7 @@ It enables seamless messaging via **TCP sockets** and a **WebSocket bridge** for
 
 ## 🚀 Features
 - 💻 Real-time text chat between multiple clients  
-- 🌐 Supports both **Terminal** and **Browser** clients  
+- 🌐 Supports both **Terminal** and **Browser** clients   
 - 🔗 Reliable communication using **TCP sockets**  
 - ⚙️ WebSocket bridge for browser connectivity  
 - 🧵 Multi-threaded server to handle concurrent clients  
