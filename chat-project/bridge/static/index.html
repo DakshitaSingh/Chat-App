@@ -1,0 +1,65 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Chat Frontend</title>
+  <style>
+    body { font-family: sans-serif; max-width:800px; margin: 2rem auto; }
+    #messages { border: 1px solid #ccc; height: 400px; overflow:auto; padding: 8px; }
+    #controls { margin-top: 8px; display:flex; gap:8px; }
+    input[type=text] { flex:1; padding:8px; }
+    button { padding:8px 12px; }
+  </style>
+</head>
+<body>
+  <h2>Chat (browser)</h2>
+  <label>Username: <input id="username" value="web_user" /></label>
+  <button id="connect">Connect</button>
+  <div id="status"></div>
+  <div id="messages"></div>
+  <div id="controls">
+    <input id="msg" type="text" placeholder="Message or /pm user msg" />
+    <button id="send">Send</button>
+  </div>
+
+<script>
+let ws = null;
+const messages = document.getElementById("messages");
+const status = document.getElementById("status");
+const usernameInput = document.getElementById("username");
+
+function append(text){
+  const p = document.createElement("div");
+  p.textContent = text;
+  messages.appendChild(p);
+  messages.scrollTop = messages.scrollHeight;
+}
+
+document.getElementById("connect").onclick = function(){
+  if(ws && ws.readyState === WebSocket.OPEN){
+    ws.close();
+    return;
+  }
+  const username = encodeURIComponent(usernameInput.value || "web_user");
+  ws = new WebSocket(`${location.protocol === "https:" ? "wss" : "ws"}://${location.host}/ws?username=${username}`);
+  status.textContent = "Connecting...";
+  ws.onopen = ()=> { status.textContent = "Connected"; append("[connected to bridge]"); };
+  ws.onmessage = (ev)=> append(ev.data);
+  ws.onclose = ()=> { status.textContent = "Disconnected"; append("[disconnected]"); };
+  ws.onerror = (e)=> { status.textContent = "Error"; console.error(e); };
+};
+
+document.getElementById("send").onclick = function(){
+  const m = document.getElementById("msg").value;
+  if(!m) return;
+  if(!ws || ws.readyState !== WebSocket.OPEN){ append("[not connected]"); return; }
+  ws.send(m);
+  document.getElementById("msg").value = "";
+};
+
+document.getElementById("msg").addEventListener("keydown", (e)=> {
+  if(e.key === "Enter") document.getElementById("send").click();
+});
+</script>
+</body>
+</html>
